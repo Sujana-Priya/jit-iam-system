@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JIT IAM Dashboard</title>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI';
+    background: #0f172a;
+    color: white;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: #1e293b;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-bottom: 30px;
+}
+
+.sidebar button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    border: none;
+    background: #334155;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.sidebar button:hover {
+    background: #38bdf8;
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+button {
+    background: #38bdf8;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+input, select {
+    padding: 10px;
+    width: 60%;
+    margin-top: 10px;
+}
+
+/* Status */
+.status {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    background: #22c55e;
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+{% if status %}
+<div class="status">{{status}}</div>
+{% endif %}
+
+<div class="sidebar">
+    <h2>🔐 JIT IAM</h2>
+    <button onclick="show('request')">Request Access</button>
+    <button onclick="show('approve')">Approval</button>
+    <button onclick="show('access')">Access</button>
+    <button onclick="window.location='/logs'">Logs</button>
+</div>
+
+<div class="main">
+
+<div id="request" class="card">
+    <h3>Request Access</h3>
+    <form action="/request_access" method="post">
+        <select name="resource">
+            {% for r in resources %}
+            <option>{{r}}</option>
+            {% endfor %}
+        </select><br>
+        <button>Request</button>
+    </form>
+</div>
+
+<div id="approve" class="card">
+    <h3>Admin Approval</h3>
+    <a href="/approve_latest">
+        <button>Approve Latest</button>
+    </a>
+</div>
+
+<div id="access" class="card">
+    <h3>Access Resource</h3>
+    <form action="/access_resource" method="post">
+        <select name="resource_access">
+            <option>VM-1</option>
+            <option>VM-2</option>
+            <option>Container-1</option>
+        </select><br>
+        <input type="text" name="token" placeholder="Enter Token"><br>
+        <button>Access</button>
+    </form>
+</div>
+
+{% if time_left > 0 %}
+<p id="timer"></p>
+{% endif %}
+
+</div>
+
+<script>
+
+function show(id){
+    document.getElementById('request').style.display='none';
+    document.getElementById('approve').style.display='none';
+    document.getElementById('access').style.display='none';
+
+    document.getElementById(id).style.display='block';
+}
+
+// Timer
+let time = {{time_left}};
+if(time > 0){
+    const timer = document.getElementById("timer");
+    setInterval(() => {
+        if(time > 0){
+            time--;
+            timer.innerText = "⏳ Expires in: " + time + " sec";
+        }
+    }, 1000);
+}
+
+</script>
+
+</body>
+</html>
